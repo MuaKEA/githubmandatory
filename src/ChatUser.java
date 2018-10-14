@@ -19,16 +19,16 @@ public Thread T1;
 
     public void setUsername(String username)  {
         Scanner scan = new Scanner(System.in);
-        String user = null;
-        if (!username.contains("#€%&/()=]+") && (username.length() <= 12)) {
-
+        String user;
+        if (!username.contains("# € % & / ( ) =]+") && (username.length() <= 12)) {
+            this.Username=username;
         } else
             do {
                 System.out.println("please pick another username");
                 user = scan.next();
                 username=user;
             } while (user.length() > 12 && user.contains("!#€%&/()=?"));
-        this.Username = username;
+              this.Username = username;
     }
 
     public Thread getT1() {

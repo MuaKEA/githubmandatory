@@ -2,14 +2,16 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.Scanner;
+import java.util.Timer;
 
 public class ClientPartMK2 {
-    Scanner sc = new Scanner(System.in);
-   public  InputStream input;
-   public OutputStream output;
-   public  Socket socket;
-   public byte[] dataToSend;
+   private Scanner sc = new Scanner(System.in);
+   private InputStream input;
+   private OutputStream output;
+   private Socket socket;
+   private byte[] dataToSend;
 
    public void ClientStartop() throws IOException {
        System.out.println("=============CLIENT==============");
@@ -28,7 +30,6 @@ public class ClientPartMK2 {
        socket = new Socket(IP, PORT_SERVER);
        input = socket.getInputStream();
        output = socket.getOutputStream();
-       System.out.println("");
 
    }
 
@@ -36,21 +37,22 @@ public class ClientPartMK2 {
          Thread T1= new Thread(()->{
 while (true) {
     sc = new Scanner(System.in);
-    System.out.println("What do you want to send? ");
+    System.out.println("Type message");
     String msgToSend = sc.nextLine();
 
     try {
-        if (msgToSend.equals("JOIN") || msgToSend.equals(" DATA") || msgToSend.equals("J_ER") || msgToSend.equals("QUIT")) {
-            dataToSend = msgToSend.getBytes();
-            output.write(dataToSend);
-            commandcenter(msgToSend);
+        if (msgToSend.equals(msgToSend.equals("QUIT"))) {
+               String Answer=sc.next();
+               if(Answer.equals("yes")) {
+                dataToSend=msgToSend.getBytes();
+                output.write(dataToSend);
+                System.exit(0);
+               }
+               }
 
-        } else
             dataToSend = msgToSend.getBytes();
         output.write(dataToSend);
     } catch (IOException e) {
-        e.printStackTrace();
-    } catch (InterruptedException e) {
         e.printStackTrace();
     }
 }
@@ -59,16 +61,18 @@ while (true) {
            T1.start();
    }
 
-        public void resivemessage() throws IOException {
+        public void resivemessage()  {
             Thread T1= new Thread(()->{
        while(true) {
 
-           byte[] dataIn = new byte[1024];
                try {
+                   byte[] dataIn = new byte[1024];
                    input.read(dataIn);
                    String msgIn = new String(dataIn);
                    msgIn = msgIn.trim();
-                   System.out.println("IN -->" + msgIn + "<--");
+                   System.out.println("msgFromServer-->" + msgIn + "<--" );
+
+
                } catch (IOException e) {
                    e.printStackTrace();
                }
@@ -81,29 +85,21 @@ while (true) {
 
 
 
-    private  void commandcenter(String value) throws IOException, InterruptedException {
+    private  void commandcenter(String value) throws IOException {
         switch (value) {
-            case "QUIT":
-                System.out.println("sure? type:yes OR NO");
-                String answer = sc.next();
-                if (answer.equals("yes")) {
-                    socket.close();
-
-                }
-                break;
-
-            case "DATA":
-                break;
 
             case "JOIN":
-             ChatUser user=new ChatUser();
-             System.out.println("enter username");
-             user.setUsername(sc.next());
-             dataToSend=user.getUsername().getBytes();
-             output.write(dataToSend);
+                ChatUser user = new ChatUser();
+                System.out.println("enter username");
+                user.setUsername(sc.next());
+                dataToSend = user.getUsername().getBytes();
+                output.write(dataToSend);
+                break;
+
         }
 
-
     }
+
+
 
 }

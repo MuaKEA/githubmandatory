@@ -8,6 +8,5 @@ public class TCPClientMK2 {
        client.ClientStartop();
        client.sendmessageTOserver();
        client.resivemessage();
-
     }
 }
