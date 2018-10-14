@@ -16,8 +16,7 @@ public class ServerPartMK2  {
     ArrayList<ChatUser> chatUsers = new ArrayList<>();
     byte[] dataToSend;
     boolean usergodkend;
-    Socket s;
-
+//
 
     public void Connection() throws IOException {
         usergodkend = false;
@@ -26,7 +25,7 @@ public class ServerPartMK2  {
         ServerSocket server = new ServerSocket(PORT_LISTEN);
         while (true) {
 
-            s = server.accept();
+            Socket s = server.accept();
 
 
             System.out.println("New client request received : " + s);
@@ -50,14 +49,14 @@ public class ServerPartMK2  {
                         output.write(notJOIN.getBytes());
                     } else if (msgIn.equals("JOIN")) {
                         System.out.println("3");
-                        Commands(msgIn);
+                        Commands(msgIn,s);
                     }
 
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
 
-                resivemessage();
+                resivemessage(s);
 
             });
             T2.start();
@@ -65,13 +64,13 @@ public class ServerPartMK2  {
     }
 
 
-    public  void resivemessage() {
+    public  void resivemessage(Socket socket) {
 
          new Thread(() -> {
             InputStream input;
             while (true) {
                 try {
-                    input = s.getInputStream();
+                    input = socket.getInputStream();
                     dataIn = new byte[1024];
                     input.read(dataIn);
                     System.out.println("6");
@@ -80,12 +79,12 @@ public class ServerPartMK2  {
                     System.out.println(msgIn);
                     if (msgIn.equals("DATA") || msgIn.equals("IMAV") || msgIn.equals("QUIT") || msgIn.equals("LIST")) {
                         System.out.println("7");
-                        System.out.println(s.getLocalAddress().getHostAddress() + " " + msgIn + "<--");
-                        Commands(msgIn);
+                        System.out.println(socket.getLocalAddress().getHostAddress() + " " + msgIn + "<--");
+                        Commands(msgIn,socket);
                         System.out.println();
 
                     } else
-                        Commands("J_ER");
+                        Commands("J_ER",socket);
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -125,8 +124,8 @@ public class ServerPartMK2  {
 //            }
 
 
-    public void Commands(String command) throws IOException {
-        OutputStream output = s.getOutputStream();
+    public void Commands(String command,Socket socket) throws IOException {
+        OutputStream output = socket.getOutputStream();
         Scanner sc = new Scanner(System.in);
         InputStream input;
 
@@ -138,7 +137,7 @@ public class ServerPartMK2  {
                 String RequestUsername = "enter username";
                 dataToSend = RequestUsername.getBytes();
                 output.write(dataToSend);
-                input = s.getInputStream();
+                input = socket.getInputStream();
                 byte[] dataIn = new byte[1024];
                 input.read(dataIn);
                 String msgIn = new String(dataIn);
@@ -154,9 +153,9 @@ public class ServerPartMK2  {
 //                    }
                 System.out.println("4");
                 user.setUsername(msgIn);
-                user.setPORT(s.getPort()); //< lige her abi
-                user.setIP(s.getInetAddress().getHostAddress());
-                user.setSock(s);
+                user.setPORT(socket.getPort()); //< lige her abi
+                user.setIP(socket.getInetAddress().getHostAddress());
+                user.setSock(socket);
                 String msgTOSend = user.toString();
                 String JOK = "J_OK";
                 byte[] dataToSend = msgTOSend.getBytes();
@@ -179,7 +178,7 @@ public class ServerPartMK2  {
                 dataToSend = msg.getBytes();
                 output.write(dataToSend);
                 //resiving the clients name, so server can direct the message to client
-                input = s.getInputStream();
+                input = socket.getInputStream();
 
                 byte[] re = new byte[1024];
                 input.read(re);
@@ -194,7 +193,14 @@ public class ServerPartMK2  {
                     System.out.println("7");
                     String message = new String(re);
                     message = message.trim();
-                    System.out.println(message + " " + s.getInetAddress().getHostName() + " " + s.getInetAddress());
+
+                    for (int i = 0; i <chatUsers.size() ; i++) {
+                        if(socket.equals(chatUsers.get(i).getSock()));
+                        System.out.println("<<Message from:>>:" + chatUsers.get(i).getUsername() +">>>: "  + message+ "<<<");
+                    }
+
+
+
                     break;
 
 
@@ -204,17 +210,19 @@ public class ServerPartMK2  {
                     output.write(dataToSend);
                     System.out.println("8");
                     //resiving the clients name, so server can direct the message to client
-                    input = s.getInputStream();
+                    input = socket.getInputStream();
                     dataIn = new byte[1024];
                     input.read(dataIn);
                     System.out.println("9");
                     String msgIn2 = new String(dataIn);
                     msgIn = msgIn2.trim();
+                    byte[] datatosend=msgIn.getBytes();
                     System.out.println("10");
                     System.out.println(msgIn);
 
                     for (int h = 0; h < chatUsers.size(); h++) {
-                        chatUsers.get(0).getSock().getOutputStream().write(msgIn.getBytes());
+                            chatUsers.get(h).getSock().getOutputStream().write(datatosend);
+
 
                         }
 
@@ -234,7 +242,7 @@ public class ServerPartMK2  {
         case "QUIT":
         String exit = "bye";
         output.write(exit.getBytes());
-        s.close();
+        socket.close();
         break;
 
 

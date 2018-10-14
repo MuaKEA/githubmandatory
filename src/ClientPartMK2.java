@@ -70,7 +70,7 @@ while (true) {
                    input.read(dataIn);
                    String msgIn = new String(dataIn);
                    msgIn = msgIn.trim();
-                   System.out.println("msgFromServer-->" + msgIn + "<--" );
+                   System.out.println("message From-->"+ socket.getInetAddress().getHostAddress()+ "---> " + msgIn + "<--" );
 
 
                } catch (IOException e) {
